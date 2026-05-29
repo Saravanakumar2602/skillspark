@@ -319,9 +319,9 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
+    <div className="min-h-screen grid lg:grid-cols-2 bg-slate-50/60">
       {/* Left Content Section */}
-      <div className="relative hidden lg:flex flex-col justify-between bg-white border-r border-gray-200 p-12">
+      <div className="relative hidden lg:flex flex-col justify-between bg-gradient-to-br from-slate-50 to-indigo-50/20 border-r border-slate-200/80 p-12">
         <div className="relative z-20">
           <div className="flex items-center gap-2 text-lg font-semibold">
             <div className="size-8 rounded-lg bg-black flex items-center justify-center">
@@ -510,8 +510,8 @@ export function LoginPage() {
       </div>
 
       {/* Right Login Section */}
-      <div className="flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-[420px]">
+      <div className="flex items-center justify-center p-8 bg-slate-50/50">
+        <div className="w-full max-w-[440px] bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl shadow-slate-100/50">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-2 text-lg font-semibold mb-12">
             <div className="size-8 rounded-lg bg-black flex items-center justify-center">

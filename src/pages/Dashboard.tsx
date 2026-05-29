@@ -896,7 +896,7 @@ export function Dashboard() {
       style = document.createElement("style");
       style.id = styleId;
       style.innerHTML = `
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
         
         .skillspark-app {
           font-family: 'DM Sans', sans-serif;
@@ -904,7 +904,8 @@ export function Dashboard() {
           color: #0F172A;
         }
         .skillspark-app h1, .skillspark-app h2, .skillspark-app h3, .skillspark-app h4, .skillspark-app h5, .skillspark-app h6 {
-          font-family: 'Syne', sans-serif;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          letter-spacing: -0.025em;
         }
         .spark-card {
           background-color: #FFFFFF;
@@ -1358,113 +1359,72 @@ export function Dashboard() {
         <div className="absolute bottom-[15%] right-[5%] w-80 h-80 rounded-full bg-[#10B981]/3 blur-[90px] p-dot-2"></div>
       </div>
 
-      {/* NAVBAR */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div 
-            onClick={() => { setCurrentPage("home"); setViewingStudent(null); }} 
-            className="flex items-center gap-2 cursor-pointer group"
-          >
-            <div className="size-10 rounded-xl bg-gradient-to-tr from-[#6C63FF] to-[#10B981] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-250">
-              <Sparkles className="size-5 text-white" />
-            </div>
-            <span className="text-xl font-extrabold tracking-tight text-slate-800 group-hover:text-[#6C63FF] transition-colors">
-              SkillSpark
-            </span>
+      {/* NAVBAR (Humane / Neuralink Style Floating Navbar) */}
+      <header className="fixed top-5 left-0 right-0 z-50 flex justify-center items-center gap-3 px-6 pointer-events-none">
+        {/* LOGO CIRCLE BUTTON */}
+        <div 
+          onClick={() => { setCurrentPage("home"); setViewingStudent(null); }} 
+          className="pointer-events-auto size-12 rounded-full bg-white border border-slate-300/80 shadow-[0_8px_30px_rgba(0,0,0,0.12)] flex items-center justify-center cursor-pointer hover:border-[#6C63FF]/30 transition-all hover:scale-105 active:scale-95 duration-200 shrink-0 select-none backdrop-blur-md"
+        >
+          <div className="size-8 rounded-full bg-gradient-to-tr from-[#6C63FF] to-[#10B981] flex items-center justify-center shadow-sm">
+            <Sparkles className="size-4.5 text-white" />
           </div>
+        </div>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-8 font-medium">
+        {/* PILL NAV BAR */}
+        <div className="pointer-events-auto px-6 h-12 bg-white border border-slate-300/80 shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-full flex items-center justify-between gap-5 md:gap-8 overflow-hidden max-w-full backdrop-blur-md">
+          {/* Nav Links */}
+          <div className="flex items-center gap-5 md:gap-7 font-medium">
             {[
-              { id: "home", label: "Home" },
-              { id: "explore", label: "Explore" },
-              { id: "dashboard", label: "Dashboard" },
-              { id: "leaderboard", label: "Leaderboard" }
+              { id: "home", label: "Home", icon: <Compass className="size-4" /> },
+              { id: "explore", label: "Explore", icon: <Search className="size-4" /> },
+              { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="size-4" /> },
+              { id: "leaderboard", label: "Leaderboard", icon: <Trophy className="size-4" /> }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => { setCurrentPage(tab.id); setViewingStudent(null); }}
-                className={`relative py-1 text-sm transition-colors duration-200 ${
+                className={`py-1 text-sm font-semibold transition-colors duration-200 flex items-center gap-1.5 ${
                   currentPage === tab.id 
-                    ? "text-[#6C63FF] font-semibold" 
+                    ? "text-[#6C63FF] font-extrabold" 
                     : "text-slate-500 hover:text-slate-900"
                 }`}
               >
-                {tab.label}
-                {currentPage === tab.id && (
-                  <span className="absolute bottom-[-10px] left-0 right-0 h-[2.5px] bg-[#6C63FF] rounded-full shadow-[0_0_4px_rgba(108,99,255,0.4)]" />
-                )}
+                <span className="sm:hidden">{tab.icon}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
             ))}
           </div>
 
-          {/* User Profile */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Divider */}
+          <div className="h-4 w-[1px] bg-slate-200 shrink-0" />
+
+          {/* Profile & Logout */}
+          <div className="flex items-center gap-3 md:gap-4 shrink-0">
             <div 
               onClick={() => { setCurrentPage("myProfile"); setViewingStudent(null); }}
-              className="flex items-center gap-3 cursor-pointer group"
+              className="flex items-center gap-2 cursor-pointer group"
             >
-              <div className="size-9 rounded-full bg-slate-100 border border-slate-200 group-hover:border-[#6C63FF] flex items-center justify-center text-sm font-bold text-slate-700 transition-colors">
+              <div className="size-7 rounded-full bg-slate-100 border border-slate-200 group-hover:border-[#6C63FF] flex items-center justify-center text-xs font-bold text-slate-700 transition-colors shadow-sm">
                 {currentUser.avatar}
               </div>
-              <span className="text-sm font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
-                {currentUser.name}
+              <span className="text-xs font-bold text-slate-500 group-hover:text-slate-800 transition-colors max-w-[80px] truncate hidden md:inline">
+                {currentUser.name.split(' ')[0]}
               </span>
             </div>
             <button 
               onClick={handleSignOut}
-              className="p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 transition-colors"
+              className="text-slate-400 hover:text-slate-800 transition-colors p-1"
               title="Sign Out"
             >
               <LogOut className="size-4" />
             </button>
           </div>
-
-          {/* Mobile Menu Toggle */}
-          <div className="flex md:hidden items-center gap-3">
-            <button 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-700"
-            >
-              {isMobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
-            </button>
-          </div>
         </div>
-
-        {/* Mobile Nav Overlay */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 border-t border-slate-150 pt-4 flex flex-col gap-4">
-            {[
-              { id: "home", label: "Home" },
-              { id: "explore", label: "Explore" },
-              { id: "dashboard", label: "Dashboard" },
-              { id: "leaderboard", label: "Leaderboard" },
-              { id: "myProfile", label: "My Profile" }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => { setCurrentPage(tab.id); setViewingStudent(null); setIsMobileMenuOpen(false); }}
-                className={`py-2 px-3 rounded-lg text-left text-sm ${
-                  currentPage === tab.id 
-                    ? "bg-[#6C63FF]/10 text-[#6C63FF] font-semibold" 
-                    : "text-slate-500 hover:text-slate-900"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-            <button
-              onClick={() => { handleSignOut(); setIsMobileMenuOpen(false); }}
-              className="py-2 px-3 rounded-lg text-left text-sm text-red-500 hover:bg-red-50 flex items-center gap-2"
-            >
-              <LogOut className="size-4" /> Sign Out
-            </button>
-          </div>
-        )}
-      </nav>
+      </header>
 
       {/* VIEWPORT AREA */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-8 relative z-10">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-6 pt-28 pb-8 relative z-10">
         
         {/* ==========================================
             PAGE 1: HOME (Aurora Background Integrated)
