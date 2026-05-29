@@ -7,6 +7,8 @@ import {
   LogOut, Heart, Check, AlertCircle, FileDown, Terminal, Paperclip, CheckCircle2, Calendar, Globe
 } from 'lucide-react';
 import { AuroraBackground } from '@/components/ui/aurora-background';
+import DarkVeil from '@/components/ui/DarkVeil';
+import { HeroSection } from '@/components/ui/hero-section-1';
 
 // ==========================================
 // TYPES & INTERFACES
@@ -1353,10 +1355,9 @@ export function Dashboard() {
 
   return (
     <div className="skillspark-app min-h-screen relative overflow-hidden flex flex-col">
-      {/* BACKGROUND GRADIENTS (Light mode delicate circles) */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-[8%] left-[5%] w-60 h-60 rounded-full bg-[#6C63FF]/3 blur-[80px] p-dot-1"></div>
-        <div className="absolute bottom-[15%] right-[5%] w-80 h-80 rounded-full bg-[#10B981]/3 blur-[90px] p-dot-2"></div>
+      {/* BACKGROUND SHADER (DarkVeil Light-Theme Adapted) */}
+      <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.06] mix-blend-multiply select-none">
+        <DarkVeil speed={0.12} noiseIntensity={0.012} warpAmount={0.2} />
       </div>
 
       {/* NAVBAR (Humane / Neuralink Style Floating Navbar) */}
@@ -1432,46 +1433,11 @@ export function Dashboard() {
         {currentPage === "home" && (
           <div className="fade-in-page space-y-16">
             
-            {/* HERO SECTION WITH AURORA BACKGROUND */}
-            <AuroraBackground className="h-[520px] w-full rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden relative flex items-center justify-center">
-              <motion.div
-                initial={{ opacity: 0.0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  delay: 0.2,
-                  duration: 0.7,
-                  ease: "easeOut",
-                }}
-                className="relative z-10 max-w-4xl mx-auto space-y-6 text-center px-6"
-              >
-                <span className="px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider text-[#6C63FF] bg-[#6C63FF]/10 border border-[#6C63FF]/20 inline-block">
-                  ⚡ THE NEXT GEN PORTFOLIO HUB
-                </span>
-                <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                  Where Student Talent <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6C63FF] via-[#8B5CF6] to-[#10B981]">
-                    Gets Discovered & Seen
-                  </span>
-                </h1>
-                <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
-                  Showcase your real-world skill DNA, verify LeetCode stat rings, display peer endorsements, and link all your repos in one interactive premium link.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                  <button 
-                    onClick={() => setCurrentPage("explore")}
-                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold bg-[#6C63FF] text-white hover:bg-[#6c63ff]/90 transition-all duration-200 shadow-md"
-                  >
-                    Explore Talent
-                  </button>
-                  <button 
-                    onClick={() => setCurrentPage("myProfile")}
-                    className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold bg-white text-slate-800 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 transition-all duration-200"
-                  >
-                    Add Your Skills
-                  </button>
-                </div>
-              </motion.div>
-            </AuroraBackground>
+            {/* HERO SECTION */}
+            <HeroSection 
+              onExploreClick={() => setCurrentPage("explore")}
+              onAddSkillsClick={() => setCurrentPage("myProfile")}
+            />
 
             {/* STATS BAR */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -1765,7 +1731,7 @@ export function Dashboard() {
                   Welcome back to your SkillSpark portal. Check profile views, respond to peer endorsements, or add your latest repositories.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3 relative z-10 w-full md:w-auto">
+              <div className="flex flex-wrap gap-3 relative z-10 w-full md:w-auto shrink-0">
                 <button
                   onClick={() => setEditProfileOpen(true)}
                   className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#6C63FF] text-white hover:bg-[#6C63FF]/90 text-sm font-bold transition-all shadow-md"
@@ -1777,6 +1743,12 @@ export function Dashboard() {
                   className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-350 text-slate-700 text-sm font-bold transition-all"
                 >
                   Add Project
+                </button>
+                <button
+                  onClick={() => setUploadDocOpen(true)}
+                  className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-350 text-slate-700 text-sm font-bold transition-all"
+                >
+                  Upload CV
                 </button>
               </div>
             </div>
@@ -1804,150 +1776,90 @@ export function Dashboard() {
               ))}
             </div>
 
-            {/* PROFILE COMPLETENESS & QUICK ACTIONS */}
+            {/* MAIN TWO-COLUMN DASHBOARD CONTENT */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               
-              <div className="spark-card p-6 lg:col-span-2 space-y-6 shadow-sm bg-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-800">Profile Completeness</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">Complete your details to increase recruitment visibility</p>
+              {/* LEFT COLUMN: Skill DNA & Radar Chart (Spans 2 columns) */}
+              <div className="lg:col-span-2 space-y-8">
+                {/* Radar Chart */}
+                <div className="spark-card p-8 flex flex-col items-center justify-center space-y-6 shadow-sm bg-white min-h-[420px]">
+                  <div className="text-center w-full">
+                    <h3 className="text-lg font-bold text-slate-800">Your Skill DNA</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Calculated across core competence areas</p>
                   </div>
-                  <span className="text-2xl font-black text-[#6C63FF]">{profileCompleteness}%</span>
+                  <div className="py-2 scale-110">
+                    <RadarChart 
+                      labels={['Web', 'ML', 'Design', 'Mobile', 'DSA', 'DevOps']} 
+                      values={getRadarValues(currentUser)} 
+                    />
+                  </div>
+                  <div className="text-[11px] text-slate-400 text-center max-w-sm">
+                    Receive endorsements from other student profiles to adjust your DNA competency map in real-time.
+                  </div>
                 </div>
+              </div>
 
-                <div className="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-                  <div 
-                    className="h-full bg-gradient-to-r from-[#6C63FF] to-[#10B981] rounded-full"
-                    style={{ width: `${profileCompleteness}%`, transition: 'width 0.8s ease-out' }}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                  {[
-                    { label: "Short Professional Bio", done: currentUser.bio.length > 0 },
-                    { label: "Add at least 3 skill parameters", done: currentUser.skills.length >= 3 },
-                    { label: "Showcase 2+ project links", done: currentUser.projects.length >= 2 },
-                    { label: "List 2+ hackathons/awards", done: currentUser.achievements.length >= 2 },
-                    { label: "Verify social handle URLs", done: Object.values(currentUser.links).filter(v => v.length > 0).length >= 2 }
-                  ].map((task, idx) => (
-                    <div key={idx} className="flex items-center gap-2.5">
-                      <div className={`size-5 rounded-md flex items-center justify-center border ${
-                        task.done 
-                          ? "bg-emerald-500/10 border-emerald-500 text-emerald-600" 
-                          : "border-slate-200 bg-slate-50 text-transparent"
-                      }`}>
-                        <Check className="size-3.5" />
-                      </div>
-                      <span className={task.done ? "text-slate-800" : "text-slate-500"}>{task.label}</span>
+              {/* RIGHT COLUMN: Profile Completeness & Activity (Spans 1 column) */}
+              <div className="space-y-8">
+                
+                {/* Profile Completeness */}
+                <div className="spark-card p-6 space-y-6 shadow-sm bg-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">Completeness</h3>
+                      <p className="text-xs text-slate-500 mt-0.5">Increase profile discoverability</p>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <span className="text-xl font-black text-[#6C63FF]">{profileCompleteness}%</span>
+                  </div>
 
-              {/* QUICK ACTIONS */}
-              <div className="spark-card p-6 space-y-4 shadow-sm bg-white">
-                <h3 className="text-lg font-bold text-slate-800">Quick Actions</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <button 
-                    onClick={() => setEditProfileOpen(true)}
-                    className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-[#6C63FF]/30 text-slate-500 hover:text-[#6C63FF] flex flex-col items-center gap-2 text-center text-xs font-bold transition-all"
-                  >
-                    <User className="size-5 text-[#6C63FF]" />
-                    Edit Profile
-                  </button>
-                  <button 
-                    onClick={() => setAddProjectOpen(true)}
-                    className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-[#6C63FF]/30 text-slate-500 hover:text-[#6C63FF] flex flex-col items-center gap-2 text-center text-xs font-bold transition-all"
-                  >
-                    <Plus className="size-5 text-[#10B981]" />
-                    Add Project
-                  </button>
-                  <button 
-                    onClick={() => setUploadDocOpen(true)}
-                    className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-[#6C63FF]/30 text-slate-500 hover:text-[#6C63FF] flex flex-col items-center gap-2 text-center text-xs font-bold transition-all"
-                  >
-                    <FileText className="size-5 text-purple-500" />
-                    Upload CV
-                  </button>
-                  <button 
-                    onClick={() => handleShareProfile(currentUser.name)}
-                    className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-[#6C63FF]/30 text-slate-500 hover:text-[#6C63FF] flex flex-col items-center gap-2 text-center text-xs font-bold transition-all"
-                  >
-                    <Share2 className="size-5 text-amber-500" />
-                    Share Profile
-                  </button>
-                </div>
-              </div>
-            </div>
+                  <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                    <div 
+                      className="h-full bg-gradient-to-r from-[#6C63FF] to-[#10B981] rounded-full"
+                      style={{ width: `${profileCompleteness}%`, transition: 'width 0.8s ease-out' }}
+                    />
+                  </div>
 
-            {/* VISUAL CHARTS & NOTIFICATIONS */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              
-              {/* Radar Chart */}
-              <div className="spark-card p-6 flex flex-col justify-between items-center space-y-4 shadow-sm bg-white">
-                <div className="text-center w-full">
-                  <h3 className="text-lg font-bold text-slate-800">Your Skill DNA</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Calculated across core competence areas</p>
-                </div>
-                <div className="py-2">
-                  <RadarChart 
-                    labels={['Web', 'ML', 'Design', 'Mobile', 'DSA', 'DevOps']} 
-                    values={getRadarValues(currentUser)} 
-                  />
-                </div>
-                <div className="text-[10px] text-slate-400 text-center max-w-[200px]">
-                  Endorsements update your competency weights in real-time.
-                </div>
-              </div>
-
-              {/* Top Skills list */}
-              <div className="spark-card p-6 space-y-6 shadow-sm bg-white">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-800">Your Top Skills</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Current highest rated skills on profile</p>
-                </div>
-                <div className="space-y-4">
-                  {currentUser.skills.slice(0, 4).map((skill, idx) => (
-                    <div key={idx} className="space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold">
-                        <span className="text-slate-700 flex items-center gap-1.5">
-                          <span className="size-2 rounded-full" style={{ backgroundColor: SKILL_COLOR_MAP[skill.category]?.text || '#6C63FF' }} />
-                          {skill.name}
-                        </span>
-                        <span className="text-slate-500">{skill.level}/100</span>
+                  <div className="space-y-3 text-xs">
+                    {[
+                      { label: "Short Professional Bio", done: currentUser.bio.length > 0 },
+                      { label: "Add at least 3 skill parameters", done: currentUser.skills.length >= 3 },
+                      { label: "Showcase 2+ project links", done: currentUser.projects.length >= 2 },
+                      { label: "List 2+ hackathons/awards", done: currentUser.achievements.length >= 2 },
+                      { label: "Verify social handle URLs", done: Object.values(currentUser.links).filter(v => v && v.length > 0).length >= 2 }
+                    ].map((task, idx) => (
+                      <div key={idx} className="flex items-center gap-2.5">
+                        <div className={`size-4 rounded flex items-center justify-center border ${
+                          task.done 
+                            ? "bg-emerald-500/10 border-emerald-500 text-emerald-600" 
+                            : "border-slate-200 bg-slate-50 text-transparent"
+                        }`}>
+                          <Check className="size-3" />
+                        </div>
+                        <span className={task.done ? "text-slate-700 font-medium" : "text-slate-400"}>{task.label}</span>
                       </div>
-                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-                        <div 
-                          className="h-full rounded-full transition-all duration-700 ease-out"
-                          style={{ 
-                            width: `${skill.level}%`, 
-                            backgroundColor: SKILL_COLOR_MAP[skill.category]?.text || '#6C63FF' 
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Activity Feed */}
-              <div className="spark-card p-6 space-y-6 shadow-sm bg-white">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-800">Recent Activity</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Updates on your portfolio page visibility</p>
-                </div>
-                <div className="space-y-4">
-                  {activities.map(act => (
-                    <div key={act.id} className="flex gap-3 text-xs leading-relaxed border-b border-slate-50 pb-2.5 last:border-0 last:pb-0">
-                      <div className="size-2 rounded-full bg-[#6C63FF] mt-1.5 shrink-0" />
-                      <div className="space-y-0.5">
-                        <p className="text-slate-800 font-medium">{act.text}</p>
-                        <p className="text-[10px] text-slate-400">{act.time}</p>
+                {/* Activity Feed */}
+                <div className="spark-card p-6 space-y-6 shadow-sm bg-white">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800">Recent Activity</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Visits and peer approvals</p>
+                  </div>
+                  <div className="space-y-4 max-h-[220px] overflow-y-auto pr-1">
+                    {activities.map(act => (
+                      <div key={act.id} className="flex gap-3 text-xs leading-relaxed border-b border-slate-50 pb-2.5 last:border-0 last:pb-0">
+                        <div className="size-1.5 rounded-full bg-[#6C63FF] mt-1.5 shrink-0" />
+                        <div className="space-y-0.5">
+                          <p className="text-slate-700 font-medium">{act.text}</p>
+                          <p className="text-[10px] text-slate-400">{act.time}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
+
               </div>
 
             </div>

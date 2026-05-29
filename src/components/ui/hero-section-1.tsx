@@ -107,35 +107,7 @@ export function HeroSection({ onExploreClick, onAddSkillsClick }: HeroSectionPro
                         </div>
                     </div>
 
-                    <AnimatedGroup
-                        variants={{
-                            container: {
-                                visible: {
-                                    transition: {
-                                        staggerChildren: 0.05,
-                                        delayChildren: 0.75,
-                                    },
-                                },
-                            },
-                            ...transitionVariants,
-                        }}>
-                        <div className="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-16">
-                            <div
-                                aria-hidden
-                                className="bg-gradient-to-b to-transparent absolute inset-0 z-10 from-transparent"
-                            />
-                            <div className="inset-shadow-2xs bg-white relative mx-auto max-w-5xl overflow-hidden rounded-2xl border border-slate-200/80 p-3 shadow-2xl ring-1 ring-slate-100">
-                                {/* Dashboard Screenshot */}
-                                <img
-                                    className="aspect-[16/9] w-full rounded-xl object-cover border border-slate-100 shadow-sm"
-                                    src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=1600&auto=format&fit=crop&q=80"
-                                    alt="SkillSpark Dashboard Showcase"
-                                    width="2700"
-                                    height="1440"
-                                />
-                            </div>
-                        </div>
-                    </AnimatedGroup>
+
                 </div>
             </section>
             
@@ -149,27 +121,77 @@ export function HeroSection({ onExploreClick, onAddSkillsClick }: HeroSectionPro
                             <ChevronRight className="ml-1 inline-block size-3.5" />
                         </button>
                     </div>
-                    <div className="group-hover:blur-[2px] mx-auto grid max-w-2xl grid-cols-4 gap-x-12 gap-y-8 transition-all duration-500 group-hover:opacity-40 sm:grid-cols-8 sm:gap-x-10 sm:gap-y-6 items-center">
-                        {[
-                            { name: 'Nvidia', url: 'https://html.tailus.io/blocks/customers/nvidia.svg' },
-                            { name: 'Column', url: 'https://html.tailus.io/blocks/customers/column.svg' },
-                            { name: 'GitHub', url: 'https://html.tailus.io/blocks/customers/github.svg' },
-                            { name: 'Nike', url: 'https://html.tailus.io/blocks/customers/nike.svg' },
-                            { name: 'Lemon Squeezy', url: 'https://html.tailus.io/blocks/customers/lemonsqueezy.svg' },
-                            { name: 'Laravel', url: 'https://html.tailus.io/blocks/customers/laravel.svg' },
-                            { name: 'Lilly', url: 'https://html.tailus.io/blocks/customers/lilly.svg' },
-                            { name: 'OpenAI', url: 'https://html.tailus.io/blocks/customers/openai.svg' },
-                        ].map((customer, idx) => (
-                            <div key={idx} className="flex justify-center">
-                                <img
-                                    className="h-5 md:h-6 w-auto opacity-40 hover:opacity-100 duration-150 transition-opacity grayscale"
-                                    src={customer.url}
-                                    alt={`${customer.name} Logo`}
-                                    height="24"
-                                    width="auto"
-                                />
-                            </div>
-                        ))}
+                    <div className="group-hover:blur-[2px] mx-auto grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-6 transition-all duration-500 group-hover:opacity-30 items-center justify-items-center">
+                        
+                        {/* NVIDIA */}
+                        <div className="flex justify-center select-none">
+                            <svg className="h-5 w-auto opacity-45 hover:opacity-100 duration-200 transition-opacity text-slate-500 fill-current" viewBox="0 0 100 24">
+                              <path d="M5 2c4 0 7 3 7 7s-3 7-7 7-7-3-7-7 3-7 7-7zm0 2c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5z M5 6c1.7 0 3 1.3 3 3s-1.3 3-3 3-3-1.3-3-3 1.3-3 3-3z"/>
+                              <text x="18" y="16" className="font-black text-[12px] tracking-widest font-sans">NVIDIA</text>
+                            </svg>
+                        </div>
+
+                        {/* COLUMN */}
+                        <div className="flex justify-center select-none">
+                            <svg className="h-5 w-auto opacity-45 hover:opacity-100 duration-200 transition-opacity text-slate-500 fill-current" viewBox="0 0 100 24">
+                              <rect x="2" y="3" width="3" height="18" rx="0.5"/>
+                              <rect x="8" y="3" width="3" height="18" rx="0.5"/>
+                              <rect x="14" y="3" width="3" height="18" rx="0.5"/>
+                              <text x="22" y="16" className="font-bold text-[11px] tracking-wider font-sans">COLUMN</text>
+                            </svg>
+                        </div>
+
+                        {/* GITHUB */}
+                        <div className="flex justify-center select-none">
+                            <svg className="h-5 w-auto opacity-45 hover:opacity-100 duration-200 transition-opacity text-slate-500 fill-current" viewBox="0 0 100 24">
+                              <path d="M8 2c-4.4 0-8 3.6-8 8 0 3.5 2.3 6.5 5.5 7.6.4.1.5-.2.5-.4v-1.4c-2.2.5-2.7-1.1-2.7-1.1-.4-.9-.9-1.2-.9-1.2-.7-.5.1-.5.1-.5.8.1 1.2.8 1.2.8.7 1.2 1.9.9 2.3.7.1-.5.3-.9.5-1.1-1.8-.2-3.7-.9-3.7-4 0-.9.3-1.6.8-2.2-.1-.2-.4-1.1.1-2.2 0 0 .7-.2 2.3.9.7-.2 1.4-.3 2.1-.3s1.4.1 2.1.3c1.6-1.1 2.3-.9 2.3-.9.5 1.1.2 2 .1 2.2.5.6.8 1.3.8 2.2 0 3.1-1.9 3.8-3.7 4 .3.3.6.8.6 1.6v2.4c0 .2.1.5.5.4 3.2-1.1 5.5-4.1 5.5-7.6 0-4.4-3.6-8-8-8z"/>
+                              <text x="20" y="16" className="font-extrabold text-[12px] tracking-wide font-sans">GitHub</text>
+                            </svg>
+                        </div>
+
+                        {/* NIKE */}
+                        <div className="flex justify-center select-none">
+                            <svg className="h-5 w-auto opacity-45 hover:opacity-100 duration-200 transition-opacity text-slate-500 fill-current" viewBox="0 0 75 24">
+                              <path d="M4 13c6-2 11-5 13.5-7-.2.5-.7 1.2-1.3 1.8C13.5 10 9 13 3 14.5c-.7.2-.9.5-.4.6l2 1c.7.3 1.5.1 2.2-.4z"/>
+                              <text x="22" y="16" className="font-black text-[12px] tracking-widest font-sans italic">NIKE</text>
+                            </svg>
+                        </div>
+
+                        {/* LEMON SQUEEZY */}
+                        <div className="flex justify-center select-none">
+                            <svg className="h-5 w-auto opacity-45 hover:opacity-100 duration-200 transition-opacity text-slate-500 fill-current" viewBox="0 0 110 24">
+                              <circle cx="8" cy="11" r="5" stroke="currentColor" strokeWidth="1.8" fill="none"/>
+                              <circle cx="8" cy="7.5" r="1" />
+                              <text x="18" y="15" className="font-bold text-[10px] tracking-wider font-sans">LEMONSQUEEZY</text>
+                            </svg>
+                        </div>
+
+                        {/* LARAVEL */}
+                        <div className="flex justify-center select-none">
+                            <svg className="h-5 w-auto opacity-45 hover:opacity-100 duration-200 transition-opacity text-slate-500 fill-current" viewBox="0 0 95 24">
+                              <path d="M3 13l4-7 4 7H3z"/>
+                              <text x="16" y="16" className="font-black text-[12px] tracking-wider font-sans">LARAVEL</text>
+                            </svg>
+                        </div>
+
+                        {/* LILLY */}
+                        <div className="flex justify-center select-none">
+                            <svg className="h-5 w-auto opacity-45 hover:opacity-100 duration-200 transition-opacity text-slate-500 fill-current" viewBox="0 0 75 24">
+                              <path d="M5 4c2 0 3.5 1.5 3.5 3.5S7 11 5 11s-3.5-1.5-3.5-3.5S3 4 5 4z"/>
+                              <text x="14" y="16" className="font-bold text-[12px] tracking-wide font-sans italic">Lilly</text>
+                            </svg>
+                        </div>
+
+                        {/* OPENAI */}
+                        <div className="flex justify-center select-none">
+                            <svg className="h-5 w-auto opacity-45 hover:opacity-100 duration-200 transition-opacity text-slate-500 fill-current" viewBox="0 0 90 24">
+                              <circle cx="7" cy="11" r="4.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                              <line x1="7" y1="6.5" x2="7" y2="15.5" stroke="currentColor" strokeWidth="1.5"/>
+                              <line x1="2.5" y1="11" x2="11.5" y2="11" stroke="currentColor" strokeWidth="1.5"/>
+                              <text x="16" y="15" className="font-extrabold text-[11px] tracking-widest font-sans">OPENAI</text>
+                            </svg>
+                        </div>
+
                     </div>
                 </div>
             </section>
