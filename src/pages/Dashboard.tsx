@@ -9,6 +9,7 @@ import {
 import { AuroraBackground } from '@/components/ui/aurora-background';
 import DarkVeil from '@/components/ui/DarkVeil';
 import { HeroSection } from '@/components/ui/hero-section-1';
+import { allSkills, skillCategories } from '@/data/skills';
 
 // ==========================================
 // TYPES & INTERFACES
@@ -45,6 +46,15 @@ interface DocumentItem {
   uploadDate?: string;
 }
 
+interface Testimonial {
+  id: number;
+  authorName: string;
+  authorAvatar: string;
+  relationship: string;
+  text: string;
+  date: string;
+}
+
 interface Student {
   id: number;
   name: string;
@@ -56,6 +66,7 @@ interface Student {
   projects: Project[];
   achievements: Achievement[];
   documents: DocumentItem[];
+  testimonials?: Testimonial[];
   links: {
     github: string;
     linkedin: string;
@@ -132,6 +143,10 @@ const INITIAL_STUDENTS: Student[] = [
     },
     leetcodeStats: { solved: 450, easy: 150, medium: 220, hard: 80, streak: 45 },
     stats: { profileViews: 542, endorsementsReceived: 99, rank: 3 },
+    testimonials: [
+      { id: 1, authorName: "Priya Nair", authorAvatar: "PN", relationship: "Project Partner", text: "Arjun's full-stack architecture is amazing. He designed our Socket.io collaborative IDE structure beautifully and was an absolute pleasure to build with.", date: "2026-05-15" },
+      { id: 2, authorName: "Alex Chen", authorAvatar: "AC", relationship: "Classmate", text: "Excellent communicator and developer. Arjun was the go-to team lead for our AI recruiting platform project.", date: "2026-05-20" }
+    ],
     joinedDate: "2024-08-15"
   },
   {
@@ -181,6 +196,9 @@ const INITIAL_STUDENTS: Student[] = [
     },
     leetcodeStats: { solved: 820, easy: 200, medium: 450, hard: 170, streak: 180 },
     stats: { profileViews: 980, endorsementsReceived: 136, rank: 1 },
+    testimonials: [
+      { id: 1, authorName: "Arjun Kumar", authorAvatar: "AK", relationship: "Co-developer", text: "Alex has unparalleled algorithms expertise. The distributed key-value store Raft consensus he built in C++ is highly optimized and completely bug-free.", date: "2026-05-10" }
+    ],
     joinedDate: "2024-05-10"
   },
   {
@@ -231,6 +249,9 @@ const INITIAL_STUDENTS: Student[] = [
     },
     leetcodeStats: { solved: 490, easy: 130, medium: 260, hard: 100, streak: 60 },
     stats: { profileViews: 712, endorsementsReceived: 138, rank: 2 },
+    testimonials: [
+      { id: 1, authorName: "Sarah Jenkins", authorAvatar: "SJ", relationship: "Project Partner", text: "Kabir is a cloud wizard. He set up our entire AWS Lambda serverless pipeline and Stripe webhook sync in a couple of hours.", date: "2026-05-18" }
+    ],
     joinedDate: "2024-09-01"
   },
   {
@@ -281,6 +302,9 @@ const INITIAL_STUDENTS: Student[] = [
     },
     leetcodeStats: { solved: 350, easy: 110, medium: 190, hard: 50, streak: 30 },
     stats: { profileViews: 620, endorsementsReceived: 114, rank: 4 },
+    testimonials: [
+      { id: 1, authorName: "Alex Chen", authorAvatar: "AC", relationship: "Classmate", text: "Priya's security insight is phenomenal. She ran comprehensive vulnerability audits on our cluster nodes and solved all critical CVE configurations.", date: "2026-05-22" }
+    ],
     joinedDate: "2024-11-20"
   },
   {
@@ -331,6 +355,9 @@ const INITIAL_STUDENTS: Student[] = [
     },
     leetcodeStats: { solved: 320, easy: 100, medium: 180, hard: 40, streak: 12 },
     stats: { profileViews: 580, endorsementsReceived: 138, rank: 5 },
+    testimonials: [
+      { id: 1, authorName: "Priya Nair", authorAvatar: "PN", relationship: "Mentor", text: "Sarah's understanding of deep learning and computer vision architectures is outstanding. Her drone navigation models run efficiently on tiny edge boards.", date: "2026-05-25" }
+    ],
     joinedDate: "2024-07-12"
   },
   {
@@ -815,6 +842,116 @@ export function Dashboard() {
 
   // Modals & UI States
   const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [editStep, setEditStep] = useState(1);
+  const [skillsFormList, setSkillsFormList] = useState<Skill[]>([]);
+  const [projectsFormList, setProjectsFormList] = useState<Project[]>([]);
+  const [achievementsFormList, setAchievementsFormList] = useState<Achievement[]>([]);
+  const [documentsFormList, setDocumentsFormList] = useState<DocumentItem[]>([]);
+
+  const handleOpenEditProfile = () => {
+    setEditStep(1);
+    setProfileForm({
+      name: currentUser.name,
+      college: currentUser.college,
+      year: currentUser.year,
+      bio: currentUser.bio,
+      github: currentUser.links.github,
+      linkedin: currentUser.links.linkedin,
+      leetcode: currentUser.links.leetcode,
+      portfolio: currentUser.links.portfolio
+    });
+    setSkillsFormList([...currentUser.skills]);
+    setProjectsFormList([...currentUser.projects]);
+    setAchievementsFormList([...currentUser.achievements || []]);
+    setDocumentsFormList([...currentUser.documents || []]);
+    setEditProfileOpen(true);
+  };
+
+  const [newProjTitle, setNewProjTitle] = useState('');
+  const [newProjDesc, setNewProjDesc] = useState('');
+  const [newProjStack, setNewProjStack] = useState('');
+  const [newProjGithub, setNewProjGithub] = useState('');
+  const [newProjLive, setNewProjLive] = useState('');
+  const [newProjTheme, setNewProjTheme] = useState('web');
+
+  const [newAchTitle, setNewAchTitle] = useState('');
+  const [newAchIssuer, setNewAchIssuer] = useState('');
+  const [newAchType, setNewAchType] = useState<'hackathon' | 'certification' | 'award'>('hackathon');
+  const [newAchDate, setNewAchDate] = useState('');
+
+  const [newDocName, setNewDocName] = useState('');
+  const [newDocType, setNewDocType] = useState<'resume' | 'certificate' | 'paper'>('resume');
+  const [newDocIsPublic, setNewDocIsPublic] = useState(true);
+
+  const [activeProjIdx, setActiveProjIdx] = useState(0);
+  const [activeScreenIdx, setActiveScreenIdx] = useState(0);
+  const [showSnippet, setShowSnippet] = useState(false);
+
+  const handleAddProjToList = () => {
+    if (!newProjTitle || !newProjDesc) {
+      triggerToast("Project Title and Description are required!", "error");
+      return;
+    }
+    const images: Record<string, string> = {
+      web: "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=500&auto=format&fit=crop&q=60",
+      mobile: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=500&auto=format&fit=crop&q=60",
+      data: "https://images.unsplash.com/photo-1527474305487-b87b222841cc?w=500&auto=format&fit=crop&q=60"
+    };
+    const newProj: Project = {
+      title: newProjTitle,
+      description: newProjDesc,
+      techStack: newProjStack.split(",").map(s => s.trim()).filter(Boolean),
+      githubUrl: newProjGithub,
+      liveUrl: newProjLive,
+      image: images[newProjTheme]
+    };
+    setProjectsFormList(prev => [newProj, ...prev]);
+    setNewProjTitle('');
+    setNewProjDesc('');
+    setNewProjStack('');
+    setNewProjGithub('');
+    setNewProjLive('');
+    setNewProjTheme('web');
+    triggerToast("Project added to listing!", "success");
+  };
+
+  const handleAddAchToList = () => {
+    if (!newAchTitle || !newAchIssuer) {
+      triggerToast("Achievement Title and Issuer are required!", "error");
+      return;
+    }
+    const badgeEmoji = newAchType === 'hackathon' ? '🏆' : newAchType === 'certification' ? '☁️' : '⭐';
+    const newAch: Achievement = {
+      title: newAchTitle,
+      type: newAchType,
+      date: newAchDate || new Date().toISOString().slice(0, 7),
+      issuer: newAchIssuer,
+      badge: `${badgeEmoji} ${newAchTitle.slice(0, 10)}`
+    };
+    setAchievementsFormList(prev => [newAch, ...prev]);
+    setNewAchTitle('');
+    setNewAchIssuer('');
+    setNewAchDate('');
+    triggerToast("Achievement added!", "success");
+  };
+
+  const handleAddDocToList = () => {
+    if (!newDocName) {
+      triggerToast("Document Name is required!", "error");
+      return;
+    }
+    const newDoc: DocumentItem = {
+      name: newDocName.endsWith('.pdf') ? newDocName : `${newDocName}.pdf`,
+      type: newDocType,
+      url: "#",
+      isPublic: newDocIsPublic,
+      uploadDate: new Date().toISOString().split('T')[0]
+    };
+    setDocumentsFormList(prev => [newDoc, ...prev]);
+    setNewDocName('');
+    triggerToast("Document added!", "success");
+  };
+
   const [addProjectOpen, setAddProjectOpen] = useState(false);
   const [uploadDocOpen, setUploadDocOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("skills");
@@ -1075,7 +1212,7 @@ export function Dashboard() {
 
   // Handler for Profile Update
   const handleEditProfileSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setStudents(prev => prev.map(s => {
       if (s.id === currentUser.id) {
         return {
@@ -1084,6 +1221,10 @@ export function Dashboard() {
           college: profileForm.college,
           year: profileForm.year,
           bio: profileForm.bio,
+          skills: skillsFormList,
+          projects: projectsFormList,
+          achievements: achievementsFormList,
+          documents: documentsFormList,
           links: {
             github: profileForm.github,
             linkedin: profileForm.linkedin,
@@ -1733,7 +1874,7 @@ export function Dashboard() {
               </div>
               <div className="flex flex-wrap gap-3 relative z-10 w-full md:w-auto shrink-0">
                 <button
-                  onClick={() => setEditProfileOpen(true)}
+                  onClick={handleOpenEditProfile}
                   className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#6C63FF] text-white hover:bg-[#6C63FF]/90 text-sm font-bold transition-all shadow-md"
                 >
                   Edit Profile
@@ -2108,7 +2249,7 @@ export function Dashboard() {
                     {isOwnProfile ? (
                       <>
                         <button
-                          onClick={() => setEditProfileOpen(true)}
+                          onClick={handleOpenEditProfile}
                           className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#6C63FF] text-white hover:bg-[#6C63FF]/90 text-sm font-bold transition-all shadow-md"
                         >
                           Edit Profile
@@ -2150,7 +2291,8 @@ export function Dashboard() {
                     { id: "projects", label: "Projects" },
                     { id: "achievements", label: "Achievements" },
                     { id: "documents", label: "Documents" },
-                    { id: "links", label: "Links & Socials" }
+                    { id: "links", label: "Links & Socials" },
+                    { id: "testimonials", label: "Testimonials" }
                   ].map(tab => (
                     <button
                       key={tab.id}
@@ -2260,12 +2402,12 @@ export function Dashboard() {
                       <div className="flex items-center justify-between">
                         <div>
                           <h3 className="text-lg font-bold text-slate-850">Showcased Projects</h3>
-                          <p className="text-xs text-slate-500 mt-0.5">Real-world applications built by student</p>
+                          <p className="text-xs text-slate-500 mt-0.5 font-medium">Real-world applications built by student</p>
                         </div>
                         {isOwnProfile && (
                           <button
                             onClick={() => setAddProjectOpen(true)}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#6C63FF] text-white hover:bg-[#6C63FF]/90 text-xs font-bold transition-all shadow-md"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#6C63FF] text-white hover:bg-[#6C63FF]/90 text-xs font-bold transition-all shadow-md animate-fade-in"
                           >
                             <Plus className="size-4" /> Add Project
                           </button>
@@ -2273,53 +2415,261 @@ export function Dashboard() {
                       </div>
 
                       {profileUser.projects.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {profileUser.projects.map((proj, idx) => (
-                            <div 
-                              key={idx} 
-                              className="spark-card overflow-hidden flex flex-col justify-between shadow-sm bg-white"
-                              style={{ borderTop: `4px solid ${idx % 2 === 0 ? '#6C63FF' : '#10B981'}` }}
-                            >
-                              <div className="p-6 space-y-4">
-                                <h4 className="text-xl font-extrabold text-slate-800">{proj.title}</h4>
-                                <p className="text-sm text-slate-500 leading-relaxed">{proj.description}</p>
-                                
-                                <div className="flex flex-wrap gap-1.5">
-                                  {proj.techStack.map(ts => (
-                                    <span key={ts} className="px-2 py-0.5 rounded bg-slate-50 text-slate-650 text-[10px] font-bold border border-slate-200">
-                                      {ts}
-                                    </span>
-                                  ))}
+                        (() => {
+                          const clampedProjIdx = Math.max(0, Math.min(activeProjIdx, profileUser.projects.length - 1));
+                          const proj = profileUser.projects[clampedProjIdx];
+                          if (!proj) return null;
+
+                          // Helper function for syntax-colored code snippets
+                          const getCodeSnippet = (title: string, techStack: string[]) => {
+                            const lowerTitle = title.toLowerCase();
+                            if (lowerTitle.includes("ide") || lowerTitle.includes("terminal") || techStack.some(t => t.toLowerCase().includes("socket"))) {
+                              return `// Cloud Collaborative IDE Server (Socket.io + Pty)
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const pty = require('node-pty');
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
+
+io.on('connection', (socket) => {
+  console.log("Client connected:", socket.id);
+  const shell = pty.spawn('bash', [], {
+    name: 'xterm-color',
+    cols: 80,
+    rows: 24,
+    cwd: process.env.HOME,
+    env: process.env
+  });
+
+  shell.on('data', (data) => {
+    socket.emit('terminal-output', data);
+  });
+
+  socket.on('terminal-input', (key) => {
+    shell.write(key);
+  });
+});`;
+                            }
+                            if (lowerTitle.includes("recruiter") || lowerTitle.includes("parser") || techStack.some(t => t.toLowerCase().includes("python") || t.toLowerCase().includes("pytorch") || t.toLowerCase().includes("tensorflow"))) {
+                              return `# Zero-shot AI Resume Classification Model
+import spacy
+from transformers import pipeline
+
+nlp = spacy.load("en_core_web_sm")
+classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+
+def extract_skills_and_match(resume_text, job_requirements):
+    doc = nlp(resume_text)
+    entities = [ent.text for ent in doc.ents if ent.label_ in ["ORG", "PRODUCT", "WORK_OF_ART"]]
+    
+    result = classifier(
+        resume_text,
+        candidate_labels=job_requirements,
+        multi_label=True
+    )
+    return {
+        "extracted_skills": list(set(entities)),
+        "scores": dict(zip(result['labels'], result['scores']))
+    }`;
+                            }
+                            if (lowerTitle.includes("blockchain") || lowerTitle.includes("escrow") || lowerTitle.includes("dapp") || techStack.some(t => t.toLowerCase().includes("solidity") || t.toLowerCase().includes("ethereum"))) {
+                              return `// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract MultiSigEscrow {
+    address public buyer;
+    address public seller;
+    address public arbiter;
+    uint255 public value;
+
+    constructor(address _seller, address _arbiter) payable {
+        buyer = msg.sender;
+        seller = _seller;
+        arbiter = _arbiter;
+        value = msg.value;
+    }
+
+    function release() public {
+        require(msg.sender == arbiter, "Only arbiter can release escrow value");
+        payable(seller).transfer(value);
+    }
+}`;
+                            }
+                            return `// React Native Native-like UI Implementation
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+
+export default function App() {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Dynamic Interface Build</Text>
+      <TouchableOpacity 
+        style={[styles.btn, isPlaying && styles.btnActive]}
+        onPress={() => setIsPlaying(!isPlaying)}
+      >
+        <Text style={styles.btnText}>{isPlaying ? "Pause Stream" : "Start Stream"}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}`;
+                          };
+
+                          // 3 Mock Screenshots
+                          const mockScreenshots = [
+                            proj.image || "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=600&auto=format&fit=crop&q=60",
+                            "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=600&auto=format&fit=crop&q=60", // code editor screenshot
+                            "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop&q=60" // dashboard analytics screenshot
+                          ];
+
+                          return (
+                            <div className="space-y-6">
+                              {/* Carousel Select Header */}
+                              <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-3.5 shadow-sm animate-fade-in">
+                                <button
+                                  onClick={() => {
+                                    setActiveProjIdx(prev => prev > 0 ? prev - 1 : profileUser.projects.length - 1);
+                                    setActiveScreenIdx(0);
+                                  }}
+                                  className="p-2 rounded-lg bg-white border border-slate-250 hover:bg-slate-100 text-slate-600 font-bold transition-all text-sm shrink-0"
+                                >
+                                  ◀ Prev
+                                </button>
+                                <div className="text-center truncate px-3">
+                                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block">Project {clampedProjIdx + 1} of {profileUser.projects.length}</span>
+                                  <h4 className="font-extrabold text-slate-800 text-base truncate">{proj.title}</h4>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    setActiveProjIdx(prev => prev < profileUser.projects.length - 1 ? prev + 1 : 0);
+                                    setActiveScreenIdx(0);
+                                  }}
+                                  className="p-2 rounded-lg bg-white border border-slate-250 hover:bg-slate-100 text-slate-600 font-bold transition-all text-sm shrink-0"
+                                >
+                                  Next ▶
+                                </button>
+                              </div>
+
+                              {/* Showcase Main Layout */}
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start animate-fade-in">
+                                {/* Left Side: Project details card */}
+                                <div className="spark-card p-6 bg-white border border-slate-200 shadow-sm space-y-4">
+                                  <h4 className="text-2xl font-black text-slate-900 tracking-tight">{proj.title}</h4>
+                                  <p className="text-sm text-slate-600 leading-relaxed font-normal">{proj.description}</p>
+                                  
+                                  <div className="space-y-1">
+                                    <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">Tech Stack Used</span>
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {proj.techStack.map(ts => (
+                                        <span key={ts} className="px-2.5 py-0.5 rounded bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-bold">
+                                          {ts}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between flex-wrap gap-3">
+                                    <div className="flex gap-4">
+                                      {proj.githubUrl && (
+                                        <a 
+                                          href={proj.githubUrl} 
+                                          target="_blank" 
+                                          rel="noreferrer"
+                                          className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
+                                        >
+                                          <Github className="size-4" /> Code Repository
+                                        </a>
+                                      )}
+                                      {proj.liveUrl && (
+                                        <a 
+                                          href={proj.liveUrl} 
+                                          target="_blank" 
+                                          rel="noreferrer"
+                                          className="flex items-center gap-1.5 text-xs font-bold text-[#6C63FF] hover:text-[#10B981] transition-colors"
+                                        >
+                                          <ExternalLink className="size-4" /> Live Demo
+                                        </a>
+                                      )}
+                                    </div>
+
+                                    <button
+                                      onClick={() => setShowSnippet(prev => !prev)}
+                                      className={`px-3.5 py-1.5 rounded-lg border text-xs font-extrabold transition-all shadow-sm ${
+                                        showSnippet 
+                                          ? 'bg-slate-900 text-white border-slate-900' 
+                                          : 'bg-white text-[#6C63FF] border-[#6C63FF]/30 hover:border-[#6C63FF]'
+                                      }`}
+                                    >
+                                      {showSnippet ? "Hide Code Snippet" : "View Code Snippet"}
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Right Side: Screenshot Explorer */}
+                                <div className="space-y-3">
+                                  <div className="aspect-[16/10] w-full rounded-2xl border border-slate-200 overflow-hidden bg-slate-50 shadow-sm relative group">
+                                    <img 
+                                      src={mockScreenshots[activeScreenIdx]} 
+                                      alt={`${proj.title} view ${activeScreenIdx + 1}`}
+                                      className="w-full h-full object-cover select-none transition-all duration-300"
+                                    />
+                                    <div className="absolute bottom-3 left-3 bg-black/60 text-white px-2 py-0.5 rounded text-[10px] font-bold">
+                                      {activeScreenIdx === 0 ? "UI Interface" : activeScreenIdx === 1 ? "Code Implementation" : "System Analytics"}
+                                    </div>
+                                  </div>
+
+                                  {/* Small thumbnails preview strip */}
+                                  <div className="flex gap-2 justify-center">
+                                    {mockScreenshots.map((scr, sidx) => (
+                                      <button
+                                        key={sidx}
+                                        onClick={() => setActiveScreenIdx(sidx)}
+                                        className={`size-14 rounded-lg overflow-hidden border-2 transition-all ${
+                                          activeScreenIdx === sidx 
+                                            ? 'border-[#6C63FF] scale-105 shadow-sm' 
+                                            : 'border-transparent opacity-60 hover:opacity-100 hover:scale-102'
+                                        }`}
+                                      >
+                                        <img src={scr} alt="Thumb" className="w-full h-full object-cover select-none" />
+                                      </button>
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
 
-                              <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-                                <div className="flex gap-4">
-                                  {proj.githubUrl && (
-                                    <a 
-                                      href={proj.githubUrl} 
-                                      target="_blank" 
-                                      rel="noreferrer"
-                                      className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
-                                    >
-                                      <Github className="size-4" /> Code
-                                    </a>
-                                  )}
-                                  {proj.liveUrl && (
-                                    <a 
-                                      href={proj.liveUrl} 
-                                      target="_blank" 
-                                      rel="noreferrer"
-                                      className="flex items-center gap-1.5 text-xs font-bold text-[#6C63FF] hover:text-[#10B981] transition-colors"
-                                    >
-                                      <ExternalLink className="size-4" /> Demo
-                                    </a>
-                                  )}
+                              {/* Syntax-colored code block (VS Code Theme) */}
+                              {showSnippet && (
+                                <div className="animate-fade-in rounded-2xl overflow-hidden border border-slate-800 bg-[#0F1424] shadow-2xl flex flex-col max-h-[380px] text-left">
+                                  {/* IDE Title Bar */}
+                                  <div className="bg-[#0B0E1B] border-b border-slate-800/80 px-4 py-2.5 flex items-center justify-between shrink-0">
+                                    <div className="flex items-center gap-1.5">
+                                      <div className="size-3 rounded-full bg-[#EF4444]" />
+                                      <div className="size-3 rounded-full bg-[#F59E0B]" />
+                                      <div className="size-3 rounded-full bg-[#10B981]" />
+                                      <span className="text-[11px] font-bold text-slate-400 font-mono ml-2 truncate max-w-[200px]">
+                                        {proj.title.toLowerCase().replace(/\s+/g, '-')}/src/main.js
+                                      </span>
+                                    </div>
+                                    <span className="text-[10px] font-extrabold text-[#6C63FF] bg-[#6C63FF]/10 px-2 py-0.5 rounded font-mono uppercase">
+                                      js/python/solidity
+                                    </span>
+                                  </div>
+
+                                  {/* Code scroll view */}
+                                  <div className="p-4 overflow-auto font-mono text-xs text-[#E2E8F0] leading-relaxed select-text text-left">
+                                    <pre className="whitespace-pre">
+                                      {getCodeSnippet(proj.title, proj.techStack)}
+                                    </pre>
+                                  </div>
                                 </div>
-                              </div>
+                              )}
                             </div>
-                          ))}
-                        </div>
+                          );
+                        })()
                       ) : (
                         <div className="text-center py-12 bg-white border border-dashed border-slate-200 rounded-2xl">
                           <p className="text-sm text-slate-500">No showcased projects available.</p>
@@ -2477,6 +2827,157 @@ export function Dashboard() {
                     </div>
                   )}
 
+                  {/* TAB 6: TESTIMONIALS */}
+                  {activeTab === "testimonials" && (
+                    <div className="space-y-6 fade-in-page">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-bold text-slate-850">Recommendations & Testimonials</h3>
+                          <p className="text-xs text-slate-500 mt-0.5 font-medium">Written endorsements and peer feedback</p>
+                        </div>
+                      </div>
+
+                      {/* LEAVE A TESTIMONIAL FORM (Visible if viewing another student's profile) */}
+                      {!isOwnProfile && (
+                        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+                          <h4 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                            <Award className="size-4.5 text-[#6C63FF]" /> Write a Recommendation for {profileUser.name}
+                          </h4>
+                          <form 
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              const formEl = e.currentTarget;
+                              const text = (formEl.elements.namedItem("recText") as HTMLTextAreaElement).value;
+                              const relationship = (formEl.elements.namedItem("relationship") as HTMLSelectElement).value;
+                              if (!text.trim()) {
+                                triggerToast("Recommendation text cannot be empty!", "error");
+                                return;
+                              }
+
+                              const newTestimonial: Testimonial = {
+                                id: Date.now(),
+                                authorName: currentUser.name,
+                                authorAvatar: currentUser.avatar,
+                                relationship: relationship,
+                                text: text,
+                                date: new Date().toISOString().split('T')[0]
+                              };
+
+                              setStudents(prev => prev.map(s => {
+                                if (s.id === profileUser.id) {
+                                  const currentTestimonials = s.testimonials || [];
+                                  return {
+                                    ...s,
+                                    testimonials: [newTestimonial, ...currentTestimonials],
+                                    stats: {
+                                      ...s.stats,
+                                      endorsementsReceived: s.stats.endorsementsReceived + 1
+                                    }
+                                  };
+                                }
+                                return s;
+                              }));
+
+                              // Sync target viewingStudent testimonials list in local state too
+                              setViewingStudent(prev => {
+                                if (!prev) return null;
+                                return {
+                                  ...prev,
+                                  testimonials: [newTestimonial, ...(prev.testimonials || [])],
+                                  stats: {
+                                    ...prev.stats,
+                                    endorsementsReceived: prev.stats.endorsementsReceived + 1
+                                  }
+                                };
+                              });
+
+                              formEl.reset();
+                              triggerToast(`Recommendation submitted successfully!`, "success");
+                            }}
+                            className="space-y-3"
+                          >
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="space-y-1 text-left">
+                                <label className="text-xs font-bold text-slate-500">Your Relationship</label>
+                                <select 
+                                  name="relationship" 
+                                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-800 text-xs outline-none cursor-pointer"
+                                >
+                                  <option value="Project Partner">Project Partner</option>
+                                  <option value="Classmate">Classmate</option>
+                                  <option value="Co-developer">Co-developer</option>
+                                  <option value="Mentor">Mentor</option>
+                                  <option value="Lead Developer">Lead Developer</option>
+                                </select>
+                              </div>
+                              <div className="space-y-1 text-left">
+                                <label className="text-xs font-bold text-slate-500">Author</label>
+                                <input 
+                                  type="text" 
+                                  disabled 
+                                  value={`${currentUser.name} (You)`} 
+                                  className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-500 text-xs outline-none"
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-1 text-left">
+                              <label className="text-xs font-bold text-slate-500">Recommendation Text</label>
+                              <textarea 
+                                name="recText"
+                                required
+                                rows={3}
+                                placeholder={`Write a genuine testimonial detailing ${profileUser.name.split(' ')[0]}'s coding expertise, collaboration skills, or project contributions...`}
+                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-800 text-xs outline-none resize-none transition-colors"
+                              />
+                            </div>
+                            <button
+                              type="submit"
+                              className="px-4 py-2 rounded-lg bg-[#6C63FF] text-white hover:bg-[#6C63FF]/90 text-xs font-bold transition-all shadow-sm flex items-center gap-1"
+                            >
+                              Submit Recommendation
+                            </button>
+                          </form>
+                        </div>
+                      )}
+
+                      {/* Testimonials Masonry / Grid Wall */}
+                      {profileUser.testimonials && profileUser.testimonials.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {profileUser.testimonials.map((test) => (
+                            <div 
+                              key={test.id} 
+                              className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between relative overflow-hidden"
+                            >
+                              {/* Quote mark icon background decoration */}
+                              <div className="absolute right-4 top-2 text-6xl font-black text-slate-100/50 font-serif select-none pointer-events-none">
+                                “
+                              </div>
+                              <p className="text-xs text-slate-650 leading-relaxed font-normal italic relative z-10 text-left">
+                                "{test.text}"
+                              </p>
+                              <div className="flex items-center gap-3.5 border-t border-slate-100 pt-3 relative z-10">
+                                <div className="size-8 rounded-full bg-slate-100 border border-slate-250 flex items-center justify-center text-xs font-bold text-slate-700 shrink-0">
+                                  {test.authorAvatar}
+                                </div>
+                                <div className="text-left truncate">
+                                  <span className="text-xs font-bold text-slate-800 block truncate">{test.authorName}</span>
+                                  <span className="text-[10px] text-slate-400 font-semibold uppercase">{test.relationship} · {test.date}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12 bg-white border border-dashed border-slate-200 rounded-2xl">
+                          <p className="text-sm text-slate-500">No testimonials or recommendations yet.</p>
+                          {!isOwnProfile && (
+                            <p className="text-xs text-slate-400 mt-1">Be the first to leave a recommendation for {profileUser.name}!</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                 </div>
 
               </div>
@@ -2505,119 +3006,481 @@ export function Dashboard() {
       {/* 1. EDIT PROFILE MODAL */}
       {editProfileOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0A0F1E]/30 backdrop-blur-md animate-fade-in">
-          <div className="w-full max-w-lg rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 relative text-slate-800">
+          <div className="w-full max-w-2xl rounded-2xl bg-white border border-slate-200 shadow-2xl p-6 relative text-slate-800 flex flex-col max-h-[90vh]">
             <button 
               onClick={() => setEditProfileOpen(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-800 p-1"
             >
               <X className="size-6" />
             </button>
-            <h3 className="text-xl font-bold text-slate-900 mb-4">Edit Profile Showcase</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Setup Your Profile Showcase</h3>
             
-            <form onSubmit={handleEditProfileSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500">Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={profileForm.name}
-                    onChange={(e) => setProfileForm(p => ({ ...p, name: e.target.value }))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500">Year Badge</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. 3rd Year"
-                    value={profileForm.year}
-                    onChange={(e) => setProfileForm(p => ({ ...p, year: e.target.value }))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500">College</label>
-                <input
-                  type="text"
-                  required
-                  value={profileForm.college}
-                  onChange={(e) => setProfileForm(p => ({ ...p, college: e.target.value }))}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-500">Short Biography</label>
-                <textarea
-                  rows={3}
-                  value={profileForm.bio}
-                  onChange={(e) => setProfileForm(p => ({ ...p, bio: e.target.value }))}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none resize-none transition-colors"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500">GitHub URL</label>
-                  <input
-                    type="text"
-                    value={profileForm.github}
-                    onChange={(e) => setProfileForm(p => ({ ...p, github: e.target.value }))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500">LinkedIn URL</label>
-                  <input
-                    type="text"
-                    value={profileForm.linkedin}
-                    onChange={(e) => setProfileForm(p => ({ ...p, linkedin: e.target.value }))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500">LeetCode URL</label>
-                  <input
-                    type="text"
-                    value={profileForm.leetcode}
-                    onChange={(e) => setProfileForm(p => ({ ...p, leetcode: e.target.value }))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500">Portfolio URL</label>
-                  <input
-                    type="text"
-                    value={profileForm.portfolio}
-                    onChange={(e) => setProfileForm(p => ({ ...p, portfolio: e.target.value }))}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-2 flex gap-3">
+            {/* Step Indicators */}
+            <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4 overflow-x-auto gap-2">
+              {[
+                { step: 1, label: "1. Bio" },
+                { step: 2, label: "2. Skills" },
+                { step: 3, label: "3. Projects" },
+                { step: 4, label: "4. Credentials" },
+                { step: 5, label: "5. Socials" }
+              ].map(indicator => (
                 <button
-                  type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-[#6C63FF] text-white hover:bg-[#6C63FF]/90 font-bold text-sm transition-all"
+                  type="button"
+                  key={indicator.step}
+                  onClick={() => setEditStep(indicator.step)}
+                  className={`text-xs font-bold py-1 px-3 rounded-full border transition-all shrink-0 ${
+                    editStep === indicator.step
+                      ? 'bg-[#6C63FF] text-white border-[#6C63FF] shadow-sm'
+                      : editStep > indicator.step
+                      ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                      : 'bg-slate-50 text-slate-400 border-slate-200'
+                  }`}
                 >
-                  Save Changes
+                  {indicator.label}
                 </button>
+              ))}
+            </div>
+
+            <form onSubmit={handleEditProfileSubmit} className="flex-1 overflow-y-auto space-y-4 pr-1 pb-4">
+              
+              {/* STEP 1: BIO DETAILS */}
+              {editStep === 1 && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500">Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={profileForm.name}
+                        onChange={(e) => setProfileForm(p => ({ ...p, name: e.target.value }))}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500">Year Badge</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. 3rd Year"
+                        value={profileForm.year}
+                        onChange={(e) => setProfileForm(p => ({ ...p, year: e.target.value }))}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500">College</label>
+                    <input
+                      type="text"
+                      required
+                      value={profileForm.college}
+                      onChange={(e) => setProfileForm(p => ({ ...p, college: e.target.value }))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500">Short Biography</label>
+                    <textarea
+                      rows={4}
+                      value={profileForm.bio}
+                      onChange={(e) => setProfileForm(p => ({ ...p, bio: e.target.value }))}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none resize-none transition-colors"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 2: SKILLS PARAMETERS */}
+              {editStep === 2 && (
+                <div className="space-y-6 animate-fade-in">
+                  <div className="border-b border-slate-100 pb-2">
+                    <h4 className="font-bold text-slate-800 text-sm">Select & Grade Your Core Skills</h4>
+                    <p className="text-xs text-slate-500">Toggle skill sets and specify experience levels.</p>
+                  </div>
+
+                  <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+                    {Object.entries(skillCategories).map(([cat, skills]) => (
+                      <div key={cat} className="space-y-2">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">{cat}</span>
+                        <div className="flex flex-wrap gap-2">
+                          {(skills as string[]).map(skillName => {
+                            const existing = skillsFormList.find(s => s.name === skillName);
+                            const isSelected = !!existing;
+                            return (
+                              <div key={skillName} className="flex flex-col space-y-1.5 p-2 bg-slate-50 rounded-xl border border-slate-200 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (isSelected) {
+                                      setSkillsFormList(prev => prev.filter(s => s.name !== skillName));
+                                    } else {
+                                      setSkillsFormList(prev => [...prev, { name: skillName, level: 80, category: cat, endorsed: 0 }]);
+                                    }
+                                  }}
+                                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                                    isSelected ? 'bg-[#6C63FF] text-white shadow-sm' : 'bg-white text-slate-700 hover:bg-slate-100'
+                                  }`}
+                                >
+                                  {skillName}
+                                </button>
+                                {isSelected && (
+                                  <div className="flex items-center gap-2 pt-1 border-t border-slate-100 mt-1">
+                                    <input
+                                      type="range"
+                                      min="10"
+                                      max="100"
+                                      value={existing.level}
+                                      onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        setSkillsFormList(prev => prev.map(s => s.name === skillName ? { ...s, level: val } : s));
+                                      }}
+                                      className="w-16 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#6C63FF]"
+                                    />
+                                    <span className="text-[9px] font-bold text-slate-550 w-6 text-right">{existing.level}%</span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: PROJECT MANAGER */}
+              {editStep === 3 && (
+                <div className="space-y-6 animate-fade-in">
+                  <div>
+                    <h4 className="font-bold text-slate-800 text-sm">Manage Showcased Projects</h4>
+                    <p className="text-xs text-slate-500">Edit active repositories and publish live builds.</p>
+                  </div>
+
+                  {/* List of projects already in Form */}
+                  <div className="space-y-2.5 max-h-[30vh] overflow-y-auto pr-1">
+                    {projectsFormList.map((proj, idx) => (
+                      <div key={idx} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-4">
+                        <div className="truncate">
+                          <span className="text-sm font-bold text-slate-850 block truncate">{proj.title}</span>
+                          <span className="text-[10px] text-slate-400 truncate max-w-[200px] block">Stack: {proj.techStack.join(', ')}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setProjectsFormList(prev => prev.filter((_, i) => i !== idx))}
+                          className="px-2.5 py-1 text-[10px] font-bold text-red-500 hover:text-white hover:bg-red-550 border border-red-200 rounded-lg transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
+                    {projectsFormList.length === 0 && (
+                      <p className="text-xs text-slate-400 italic text-center py-4 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                        No projects in showcase list yet. Use form below to add.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Add Project Form */}
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                    <h5 className="text-xs font-bold text-slate-700">Add New Project</h5>
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        placeholder="Project Title"
+                        value={newProjTitle}
+                        onChange={e => setNewProjTitle(e.target.value)}
+                        className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-[#6C63FF]"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Tech Stack (comma separated)"
+                        value={newProjStack}
+                        onChange={e => setNewProjStack(e.target.value)}
+                        className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-[#6C63FF]"
+                      />
+                    </div>
+                    <textarea
+                      placeholder="Project description..."
+                      rows={2}
+                      value={newProjDesc}
+                      onChange={e => setNewProjDesc(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-[#6C63FF] resize-none"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        placeholder="GitHub Repo URL"
+                        value={newProjGithub}
+                        onChange={e => setNewProjGithub(e.target.value)}
+                        className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-[#6C63FF]"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Live Demo URL"
+                        value={newProjLive}
+                        onChange={e => setNewProjLive(e.target.value)}
+                        className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-[#6C63FF]"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-slate-500">Preset:</span>
+                        {['web', 'mobile', 'data'].map(preset => (
+                          <button
+                            type="button"
+                            key={preset}
+                            onClick={() => setNewProjTheme(preset)}
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-all ${
+                              newProjTheme === preset ? 'bg-[#6C63FF] text-white border-[#6C63FF]' : 'bg-white text-slate-500 border-slate-200'
+                            }`}
+                          >
+                            {preset}
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddProjToList}
+                        className="px-3.5 py-1.5 bg-[#6C63FF] text-white rounded-lg text-xs font-bold hover:bg-[#6C63FF]/90 transition-colors"
+                      >
+                        + Add Project
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 4: ACHIEVEMENTS & DOCUMENTS */}
+              {editStep === 4 && (
+                <div className="space-y-6 animate-fade-in">
+                  <div>
+                    <h4 className="font-bold text-slate-800 text-sm">Credentials & Document Uploads</h4>
+                    <p className="text-xs text-slate-500">Add verified certification documents or hackathon medals.</p>
+                  </div>
+
+                  {/* Split achievements and documents list */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Achievements */}
+                    <div className="space-y-3">
+                      <h5 className="text-xs font-extrabold text-slate-650 uppercase">Achievements</h5>
+                      <div className="space-y-2 max-h-[22vh] overflow-y-auto pr-1">
+                        {achievementsFormList.map((ach, idx) => (
+                          <div key={idx} className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                            <span className="truncate font-bold text-slate-700">{ach.title}</span>
+                            <button
+                              type="button"
+                              onClick={() => setAchievementsFormList(prev => prev.filter((_, i) => i !== idx))}
+                              className="text-red-500 hover:text-red-750 font-bold"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Add Achievement Form */}
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                        <input
+                          type="text"
+                          placeholder="Achievement Title"
+                          value={newAchTitle}
+                          onChange={e => setNewAchTitle(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-[#6C63FF]"
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            placeholder="Issuer"
+                            value={newAchIssuer}
+                            onChange={e => setNewAchIssuer(e.target.value)}
+                            className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-[#6C63FF]"
+                          />
+                          <select
+                            value={newAchType}
+                            onChange={(e: any) => setNewAchType(e.target.value)}
+                            className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none cursor-pointer"
+                          >
+                            <option value="hackathon">Hackathon</option>
+                            <option value="certification">Certification</option>
+                            <option value="award">Award / Accolade</option>
+                          </select>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <input
+                            type="month"
+                            value={newAchDate}
+                            onChange={e => setNewAchDate(e.target.value)}
+                            className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddAchToList}
+                            className="px-2.5 py-1.5 bg-[#6C63FF] text-white rounded-lg text-xs font-bold"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Documents */}
+                    <div className="space-y-3">
+                      <h5 className="text-xs font-extrabold text-slate-650 uppercase">PDF Documents</h5>
+                      <div className="space-y-2 max-h-[22vh] overflow-y-auto pr-1">
+                        {documentsFormList.map((doc, idx) => (
+                          <div key={idx} className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                            <span className="truncate font-bold text-slate-700">{doc.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => setDocumentsFormList(prev => prev.filter((_, i) => i !== idx))}
+                              className="text-red-500 hover:text-red-750 font-bold"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Add Document Form */}
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                        <input
+                          type="text"
+                          placeholder="Document File Name"
+                          value={newDocName}
+                          onChange={e => setNewDocName(e.target.value)}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-[#6C63FF]"
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                          <select
+                            value={newDocType}
+                            onChange={(e: any) => setNewDocType(e.target.value)}
+                            className="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none cursor-pointer"
+                          >
+                            <option value="resume">Resume / CV</option>
+                            <option value="certificate">Certificate</option>
+                            <option value="paper">Research Paper</option>
+                          </select>
+                          <div className="flex items-center gap-1.5 pl-1.5">
+                            <input
+                              type="checkbox"
+                              id="newDocIsPublic"
+                              checked={newDocIsPublic}
+                              onChange={e => setNewDocIsPublic(e.target.checked)}
+                              className="size-3.5 bg-white border-slate-200 rounded"
+                            />
+                            <label htmlFor="newDocIsPublic" className="text-[10px] font-bold text-slate-700 cursor-pointer select-none">
+                              Public File
+                            </label>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleAddDocToList}
+                          className="w-full py-1.5 bg-[#6C63FF] text-white rounded-lg text-xs font-bold"
+                        >
+                          Add PDF Document Link
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 5: CONNECTED LINKS */}
+              {editStep === 5 && (
+                <div className="space-y-4 animate-fade-in">
+                  <div className="border-b border-slate-100 pb-2">
+                    <h4 className="font-bold text-slate-800 text-sm">Connected Coding Socials</h4>
+                    <p className="text-xs text-slate-500">Provide public profile URLs for developer verification.</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500">GitHub URL</label>
+                      <input
+                        type="text"
+                        value={profileForm.github}
+                        onChange={(e) => setProfileForm(p => ({ ...p, github: e.target.value }))}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500">LinkedIn URL</label>
+                      <input
+                        type="text"
+                        value={profileForm.linkedin}
+                        onChange={(e) => setProfileForm(p => ({ ...p, linkedin: e.target.value }))}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500">LeetCode URL</label>
+                      <input
+                        type="text"
+                        value={profileForm.leetcode}
+                        onChange={(e) => setProfileForm(p => ({ ...p, leetcode: e.target.value }))}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500">Portfolio URL</label>
+                      <input
+                        type="text"
+                        value={profileForm.portfolio}
+                        onChange={(e) => setProfileForm(p => ({ ...p, portfolio: e.target.value }))}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#6C63FF] rounded-lg text-slate-900 text-sm outline-none transition-colors"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </form>
+
+            {/* Footer buttons */}
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3 mt-auto">
+              {editStep > 1 ? (
+                <button
+                  type="button"
+                  onClick={() => setEditStep(prev => prev - 1)}
+                  className="px-5 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 font-bold text-sm transition-all"
+                >
+                  ← Back
+                </button>
+              ) : (
                 <button
                   type="button"
                   onClick={() => setEditProfileOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 font-bold text-sm transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 font-bold text-sm transition-all"
                 >
                   Cancel
                 </button>
-              </div>
-            </form>
+              )}
+
+              {editStep < 5 ? (
+                <button
+                  type="button"
+                  onClick={() => setEditStep(prev => prev + 1)}
+                  className="px-5 py-2.5 rounded-xl bg-[#6C63FF] text-white hover:bg-[#6C63FF]/90 font-bold text-sm transition-all ml-auto"
+                >
+                  Next Step →
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleEditProfileSubmit}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6C63FF] to-[#10B981] text-white hover:opacity-95 font-bold text-sm transition-all ml-auto shadow-md"
+                >
+                  Save & Finish ✓
+                </button>
+              )}
+            </div>
+
           </div>
         </div>
       )}
