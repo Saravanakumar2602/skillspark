@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Search, User, ExternalLink, Github, Linkedin, Award, FileText, Plus, ChevronRight, 
@@ -2988,14 +2988,27 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-white border-t border-slate-200 py-8 px-6 text-center text-xs font-medium text-slate-500 relative z-10 mt-12 shadow-inner">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="bg-white border-t border-slate-200 py-8 px-6 text-xs font-medium text-slate-500 relative z-10 mt-12 shadow-inner">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <Sparkles className="size-4 text-[#6C63FF]" />
-            <span className="text-[#6C63FF] font-bold">SkillSpark</span>
+            <span className="text-[#6C63FF] font-bold text-sm">SkillSpark</span>
             <span>· Student Skill Showcase Platform</span>
           </div>
-          <p>© 2026 SkillSpark. Built for developers with raw SVG charts & state persistence.</p>
+          
+          <div className="flex items-center gap-6 text-xs font-semibold text-slate-550">
+            <Link to="/privacy-policy" className="hover:text-[#6C63FF] transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/terms-of-service" className="hover:text-[#6C63FF] transition-colors">
+              Terms of Service
+            </Link>
+            <Link to="/contact" className="hover:text-[#6C63FF] transition-colors">
+              Contact
+            </Link>
+          </div>
+          
+          <p className="text-slate-400">© 2026 SkillSpark. Built for developers with raw SVG charts & state persistence.</p>
         </div>
       </footer>
 

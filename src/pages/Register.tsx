@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -529,15 +529,15 @@ export function RegisterPage() {
         </div>
 
         <div className="relative z-20 flex items-center gap-8 text-sm text-gray-600">
-          <a href="#" className="hover:text-black transition-colors">
+          <Link to="/privacy-policy" className="hover:text-black transition-colors">
             Privacy Policy
-          </a>
-          <a href="#" className="hover:text-black transition-colors">
+          </Link>
+          <Link to="/terms-of-service" className="hover:text-black transition-colors">
             Terms of Service
-          </a>
-          <a href="#" className="hover:text-black transition-colors">
+          </Link>
+          <Link to="/contact" className="hover:text-black transition-colors">
             Contact
-          </a>
+          </Link>
         </div>
       </div>
 
