@@ -510,8 +510,17 @@ export function LoginPage() {
       </div>
 
       {/* Right Login Section */}
-      <div className="flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-[420px]">
+      <div className="relative flex items-center justify-center p-6 md:p-12 bg-slate-50/40 overflow-hidden">
+        {/* Subtle mesh gradients */}
+        <div className="absolute top-0 right-0 w-[350px] h-[350px] bg-purple-200/10 rounded-full blur-[90px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[350px] h-[350px] bg-orange-200/10 rounded-full blur-[90px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/3 w-[300px] h-[300px] bg-indigo-100/10 rounded-full blur-[80px] pointer-events-none" />
+
+        {/* Soft grid background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:16px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+
+        {/* Form Card (Glassmorphism design) */}
+        <div className="relative z-10 w-full max-w-[440px] bg-white/70 backdrop-blur-md p-8 rounded-2xl border border-slate-200/50 shadow-xl shadow-slate-100/40">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-2 text-lg font-semibold mb-12">
             <div className="size-8 rounded-lg bg-black flex items-center justify-center">
@@ -540,7 +549,7 @@ export function LoginPage() {
                 onFocus={() => setIsTyping(true)}
                 onBlur={() => setIsTyping(false)}
                 required
-                className="h-12"
+                className="h-12 border-slate-200/80 bg-white/80 focus-visible:ring-[#6C63FF]/20 focus-visible:ring-2 focus-visible:border-[#6C63FF]"
               />
             </div>
 
@@ -554,7 +563,7 @@ export function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-12 pr-10"
+                  className="h-12 pr-10 border-slate-200/80 bg-white/80 focus-visible:ring-[#6C63FF]/20 focus-visible:ring-2 focus-visible:border-[#6C63FF]"
                 />
                 <button
                   type="button"
@@ -596,7 +605,7 @@ export function LoginPage() {
 
             <Button 
               type="submit" 
-              className="w-full h-12 text-base font-medium" 
+              className="w-full h-12 text-base font-semibold bg-[#6C63FF] hover:bg-[#6C63FF]/90 transition-colors" 
               size="lg" 
               disabled={isLoading}
             >
